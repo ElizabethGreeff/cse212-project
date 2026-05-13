@@ -12,8 +12,14 @@ public class CustomerService {
 
         // Test 1
         // Scenario: 
+        // Create a queue with an invalid size (0).
+        // The queue should default to a size of 10.
         // Expected Result: 
+        // Queue should display with max_size=10.
         Console.WriteLine("Test 1");
+
+        var cs = new CustomerService(0);
+        Console.WriteLine(cs);
 
         // Defect(s) Found: 
 
@@ -21,14 +27,76 @@ public class CustomerService {
 
         // Test 2
         // Scenario: 
+        // Add customers until the queue is full.
+        // Try to add one more customer.
         // Expected Result: 
+        // The last customer should not be added.
+        // A message to display that the queue is full should be printed.
         Console.WriteLine("Test 2");
 
-        // Defect(s) Found: 
+        cs = new CustomerService(1);
+
+        // Add the first customer
+        Console.SetIn(new StringReader("Alice\na001\nPassword Reset\n"));
+        cs.AddNewCustomer();
+
+
+        // Try to add a second customer
+        Console.SetIn(new StringReader("Bob\nb002\nSoftware Installation\n"));
+        cs.AddNewCustomer();
+
+        Console.WriteLine(cs);
+
+        // Defect(s) Found:
+        // The second customer was added to the queue.
+        // This was because of the incorrect condition definign the sorting process.
 
         Console.WriteLine("=================");
 
-        // Add more Test Cases As Needed Below
+        // Test 3
+        // Scenario:
+        // Serve First Customer
+        // Expected Result:
+        // The first customer should be removed from the queue and their information should be printed.
+
+        Console.WriteLine("Test 3");
+
+        cs = new CustomerService(5);
+
+        Console.SetIn(new StringReader("Alice\na001\nPassword Reset\n"));
+        cs.AddNewCustomer();
+
+        Console.SetIn(new StringReader("Bob\nb002\nSoftware Installation\n"));
+        cs.AddNewCustomer();
+
+        Console.SetIn(new StringReader("Charlie\nc003\nHardware Failure\n"));
+        cs.AddNewCustomer();
+
+        cs.ServeCustomer();
+        cs.ServeCustomer();
+        cs.ServeCustomer();
+
+        // Defect(s) Found:
+        // The first customer was removed before displayiny the name.
+
+
+
+        // Test 4
+        // Scenario:
+        // Attempt to serve a customer from an empty queue.
+        // Expected Result:
+        // An error message should be diasplayed instead of printing or crasing.
+
+        Console.WriteLine("Test 4");
+
+        cs = new CustomerService(5);
+
+        cs.ServeCustomer();
+
+        // Defect(s) Found:
+        // An error message was not displayed, it simply crashed.
+
+
     }
 
     private readonly List<Customer> _queue = new();
@@ -67,7 +135,7 @@ public class CustomerService {
     /// </summary>
     private void AddNewCustomer() {
         // Verify there is room in the service queue
-        if (_queue.Count > _maxSize) {
+        if (_queue.Count >= _maxSize) {
             Console.WriteLine("Maximum Number of Customers in Queue.");
             return;
         }
@@ -88,8 +156,14 @@ public class CustomerService {
     /// Dequeue the next customer and display the information.
     /// </summary>
     private void ServeCustomer() {
-        _queue.RemoveAt(0);
+        if (_queue.Count == 0)
+        {
+            Console.WriteLine("No Customers in Queue.");
+            return;
+        }
+        
         var customer = _queue[0];
+        _queue.RemoveAt(0);
         Console.WriteLine(customer);
     }
 
